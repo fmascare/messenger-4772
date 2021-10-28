@@ -104,7 +104,6 @@ export const postMessage = (body) => async (dispatch) => {
     }
 
     sendMessage(data, body);
-    dispatch(setFetchingStatus(true));
   } catch (error) {
     console.error(error);
   }
