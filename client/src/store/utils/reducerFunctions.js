@@ -78,3 +78,12 @@ export const addNewConvoToStore = (state, recipientId, message) => {
     }
   });
 };
+
+//Sort messages in each convo with oldest message on top
+export const sortMessages = (conversations) => {
+  const convoCopy = [...conversations];
+  return convoCopy.map((convo) => {
+    convo.messages.sort((a,b) => a.createdAt > b.createdAt ? 1 : -1);
+    return convo;
+  });
+};
