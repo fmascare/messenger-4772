@@ -2,6 +2,10 @@ const db = require("./db");
 const { User } = require("./models");
 const Conversation = require("./models/conversation");
 const Message = require("./models/message");
+const LastChecked = require("./models/lastChecked");
+
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
 
 async function seed() {
   await db.sync({ force: true });
@@ -44,6 +48,19 @@ async function seed() {
     text: "Share photo of your city, please",
   });
 
+  //add to lastChecked
+  await LastChecked.create({
+    conversationId: santaigoConvo.id,
+    userId: santiago.id,
+    lastChecked: new Date(),
+  });
+
+  await LastChecked.create({
+    conversationId: santaigoConvo.id,
+    userId: thomas.id,
+    lastChecked: new Date(),
+  });
+
   const chiumbo = await User.create({
     username: "chiumbo",
     email: "chiumbo@email.com",
@@ -59,6 +76,19 @@ async function seed() {
     conversationId: chiumboConvo.id,
     senderId: chiumbo.id,
     text: "Sure! What time?",
+  });
+
+  //add to lastChecked
+  await LastChecked.create({
+    conversationId: chiumboConvo.id,
+    userId: chiumbo.id,
+    lastChecked: yesterday,
+  });
+
+  await LastChecked.create({
+    conversationId: chiumboConvo.id,
+    userId: thomas.id,
+    lastChecked: new Date(),
   });
 
   const hualing = await User.create({
@@ -85,6 +115,19 @@ async function seed() {
     conversationId: hualingConvo.id,
     senderId: hualing.id,
     text: "😂 😂 😂",
+  });
+
+  //add to lastChecked
+  await LastChecked.create({
+    conversationId: hualingConvo.id,
+    userId: hualing.id,
+    lastChecked: yesterday,
+  });
+
+  await LastChecked.create({
+    conversationId: hualingConvo.id,
+    userId: thomas.id,
+    lastChecked: new Date(),
   });
 
   const otherUsers = await Promise.all([

@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  clearUnreadMessages,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -96,14 +97,30 @@ const sendMessage = (data, body) => {
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
+    let params;
 
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
+      params = {
+        conversationId: data.message.conversationId,
+        id: body.recipientId,
+        sender: data.message.senderId,
+      };
     } else {
       dispatch(setNewMessage(data.message));
+      params = {
+        conversationId: data.message.conversationId,
+        id: body.recipientId,
+      };
     }
 
     sendMessage(data, body);
+
+    // Send a post request to update lastChecked schema when user posts messages
+    // to an existing convo or starts a new convo
+    if(params) {
+      await updateLastCheckin(params);
+    }
   } catch (error) {
     console.error(error);
   }
@@ -113,6 +130,30 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
     dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Function to send the post request to update lastChecked schema
+const updateLastCheckin = async(params) => {
+  try {
+    await axios.post("/api/lastChecked", params);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Whenever user clicks on a convo, this resets the local state of unread messages and also
+// sends a post request to update lastChecked schema for recipientID and conversationID
+export const emptyUnread = (conversationId, id) => async (dispatch) => {
+  try {
+    const params = {
+      conversationId: conversationId,
+      id: id,
+    };
+    dispatch(clearUnreadMessages(id));
+    await updateLastCheckin(params);
   } catch (error) {
     console.error(error);
   }

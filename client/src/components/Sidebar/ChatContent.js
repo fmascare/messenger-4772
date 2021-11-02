@@ -18,12 +18,31 @@ const useStyles = makeStyles((theme) => ({
     color: "#9CADC8",
     letterSpacing: -0.17,
   },
+  previewUnreadText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    letterSpacing: -0.17,
+  },
+  bubble: {
+    backgroundColor: "#3A8DFF",
+    borderRadius: "10px",
+    marginTop: 10,
+    marginRight: 20,
+    height: 20
+  },
+  count: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    padding: "1px 9px"
+  }
 }));
 
 const ChatContent = (props) => {
   const classes = useStyles();
 
-  const { conversation } = props;
+  const { conversation, activeConversation } = props;
   const { latestMessageText, otherUser } = conversation;
 
   return (
@@ -32,10 +51,22 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
+        { otherUser.unreadCount > 0 && activeConversation !== otherUser.username && (
+        <Typography className={classes.previewUnreadText}>
+          {latestMessageText}
+        </Typography>
+        )}
+        { (otherUser.unreadCount === 0 || otherUser.lastChecked === "") && (
         <Typography className={classes.previewText}>
           {latestMessageText}
         </Typography>
+        )}
       </Box>
+      { otherUser.unreadCount > 0 && activeConversation !== otherUser.username && (
+        <Box className={classes.bubble}>
+          <Typography className={classes.count}>{otherUser.unreadCount}</Typography>
+        </Box>
+      )}
     </Box>
   );
 };
