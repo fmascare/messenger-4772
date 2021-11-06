@@ -97,30 +97,14 @@ const sendMessage = (data, body) => {
 export const postMessage = (body) => async (dispatch) => {
   try {
     const data = await saveMessage(body);
-    let params;
 
     if (!body.conversationId) {
       dispatch(addConversation(body.recipientId, data.message));
-      params = {
-        conversationId: data.message.conversationId,
-        id: body.recipientId,
-        sender: data.message.senderId,
-      };
     } else {
       dispatch(setNewMessage(data.message));
-      params = {
-        conversationId: data.message.conversationId,
-        id: body.recipientId,
-      };
     }
 
     sendMessage(data, body);
-
-    // Send a post request to update lastChecked schema when user posts messages
-    // to an existing convo or starts a new convo
-    if(params) {
-      await updateLastCheckin(params);
-    }
   } catch (error) {
     console.error(error);
   }
@@ -135,25 +119,38 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-// Function to send the post request to update lastChecked schema
-const updateLastCheckin = async(params) => {
+const readMessages = async(conversationId, senderId) => {
   try {
-    await axios.post("/api/lastChecked", params);
+    const params = {
+      conversationId: conversationId,
+      senderId: senderId,
+    }
+    await axios.put("/api/messages", params);
   } catch (error) {
     console.error(error);
   }
 };
 
-// Whenever user clicks on a convo, this resets the local state of unread messages and also
-// sends a post request to update lastChecked schema for recipientID and conversationID
+const getLastRead = async(conversationId) => {
+  try {
+    const { data } = await axios.get(`/api/messages/${conversationId}`);
+    if(data.isRead) {
+      socket.emit("clear-unread", {
+        conversationId: conversationId, 
+        id: data.senderId,
+      });
+    }
+  } catch(error) {
+    console.error(error);
+  }
+};
+
 export const emptyUnread = (conversationId, id) => async (dispatch) => {
   try {
-    const params = {
-      conversationId: conversationId,
-      id: id,
-    };
-    dispatch(clearUnreadMessages(id));
-    await updateLastCheckin(params);
+    dispatch(clearUnreadMessages(conversationId, id));
+    await readMessages(conversationId, id);
+    await getLastRead(conversationId);
+    
   } catch (error) {
     console.error(error);
   }

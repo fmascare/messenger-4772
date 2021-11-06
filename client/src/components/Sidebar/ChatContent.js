@@ -1,6 +1,32 @@
 import React from "react";
-import { Box, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Typography, Badge } from "@material-ui/core";
+import { makeStyles, createTheme, ThemeProvider } from "@material-ui/core/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#9CADC8",
+    },
+    secondary: {
+      main: "#000000",
+    }
+  },
+  spacing: [1,9,10,20],
+});
+
+theme.typography.h6 = {
+  fontWeight: "bold",
+};
+
+theme.typography.subtitle1 = {
+  fontSize: 13,
+  letterSpacing: -0.17,
+  width: "180px",
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  msTextOverflow: "ellipsis",
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -13,46 +39,23 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     letterSpacing: -0.2,
   },
-  previewText: {
-    fontSize: 12,
-    color: "#9CADC8",
-    letterSpacing: -0.17,
-    width: "180px",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    msTextOverflow: "ellipsis",
-  },
-  previewUnreadText: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#000000",
-    letterSpacing: -0.17,
-    width: "180px",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    msTextOverflow: "ellipsis",
-  },
   bubble: {
     backgroundColor: "#3A8DFF",
-    borderRadius: "10px",
-    marginTop: 10,
-    marginRight: 20,
-    height: 20
-  },
-  count: {
+    borderRadius: theme.spacing(2),
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(3),
+    height: 20,
     fontSize: 12,
     fontWeight: "bold",
     color: "#FFFFFF",
     padding: "1px 9px"
-  }
+  },
 }));
 
 const ChatContent = (props) => {
   const classes = useStyles();
 
-  const { conversation, activeConversation } = props;
+  const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
 
   return (
@@ -61,21 +64,20 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        { otherUser.unreadCount > 0 && activeConversation !== otherUser.username && (
-        <Typography className={classes.previewUnreadText}>
-          {latestMessageText}
-        </Typography>
-        )}
-        { (otherUser.unreadCount === 0 || otherUser.lastChecked === "") && (
-        <Typography className={classes.previewText}>
-          {latestMessageText}
-        </Typography>
-        )}
+        <ThemeProvider theme={theme}>
+          { otherUser.unreadCount > 0 ? (
+          <Typography color="secondary" variant="subtitle1 h6">
+            {latestMessageText}
+          </Typography>
+          ) : (
+          <Typography color="primary" variant="subtitle1">
+            {latestMessageText}
+          </Typography>
+          )}
+        </ThemeProvider>
       </Box>
-      { otherUser.unreadCount > 0 && activeConversation !== otherUser.username && (
-        <Box className={classes.bubble}>
-          <Typography className={classes.count}>{otherUser.unreadCount}</Typography>
-        </Box>
+      { otherUser.unreadCount > 0 && (
+        <Badge className={classes.bubble}>{otherUser.unreadCount}</Badge>
       )}
     </Box>
   );

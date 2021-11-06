@@ -43,4 +43,36 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+router.put("/", async (req, res, next) => {
+  try {
+    const { conversationId, senderId } = req.body;
+
+    const resp = await Message.update(
+      { isRead: true },
+      { where : { conversationId: conversationId, senderId: senderId } },
+    );
+
+    res.json({entries: resp});
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:conversationId", async (req, res, next) => {
+  try {
+    const { conversationId } = req.params;
+
+    const data = await Message.findOne({
+      where : { 
+        conversationId: conversationId,
+      },
+      order: [ ["createdAt", "DESC"] ],
+    });
+
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

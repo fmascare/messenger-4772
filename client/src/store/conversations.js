@@ -71,9 +71,10 @@ export const addConversation = (recipientId, newMessage) => {
 };
 
 // new action to clear local state of unread messages
-export const clearUnreadMessages = (id) => {
+export const clearUnreadMessages = (conversationId, id) => {
   return {
     type: CLEAR_UNREAD,
+    conversationId,
     id,
   };
 };
@@ -104,7 +105,7 @@ const reducer = (state = [], action) => {
         action.payload.newMessage
       );
     case CLEAR_UNREAD: {
-      return clearUnreadFromStore(state, action.id);
+      return clearUnreadFromStore(state, action.conversationId, action.id);
     }
     default:
       return state;

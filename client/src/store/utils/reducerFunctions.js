@@ -17,7 +17,7 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-      if(convoCopy.otherUser.lastChecked !== "") {
+      if(message.senderId === convoCopy.otherUser.id) {
         convoCopy.otherUser.unreadCount++;
       }
       return convoCopy;
@@ -64,8 +64,6 @@ export const addSearchedUsersToStore = (state, users) => {
     // only create a fake convo if we don't already have a convo with this user
     if (!currentUsers[user.id]) {
       let fakeConvo = { otherUser: user, messages: [] };
-      const today = new Date();
-      fakeConvo.otherUser.lastChecked = today.toISOString();
       newState.push(fakeConvo);
     }
   });
@@ -80,9 +78,7 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       convoCopy.id = message.conversationId;
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-      if(convoCopy.otherUser.lastChecked !== "") {
-        convoCopy.otherUser.unreadCount++;
-      }
+      convoCopy.otherUser.unreadCount=1;
       return convoCopy;
     } else {
       return convo;
@@ -99,23 +95,25 @@ export const sortMessages = (conversations) => {
   });
 };
 
-// Empty unread count in local state - if lastChecked is empty then it's an active
-// convo for the user (sender) otherwise set lastChecked timestamp to current timestamp
-// This will allow the notifications to display if user is not active on a convo
-export const clearUnreadFromStore = (state, id) => {
+export const clearUnreadFromStore = (state, conversationId, id) => {
   return state.map((convo) => {
-    if (convo.otherUser.id === id) {
+    if (convo.id === conversationId) {
       const convoCopy = { ...convo };
       convoCopy.otherUser.unreadCount = 0;
-      convoCopy.otherUser.lastChecked = "";
+      convoCopy.messages.map((msg) => {
+        if(msg.isRead && msg.senderId !== convoCopy.otherUser.id) {
+          convoCopy.otherUser.lastRead = msg.id;
+        }
+        else if(! msg.isRead && msg.senderId === id) {
+          msg.isRead = true;
+          if(id !== convoCopy.otherUser.id) {
+            convoCopy.otherUser.lastRead = msg.id;
+          }
+        }
+        return msg;
+      });
       return convoCopy;
     } else {
-      if(convo.otherUser.lastChecked === "") {
-        const convoCopy = { ...convo };
-        const today = new Date();
-        convoCopy.otherUser.lastChecked = today.toISOString();
-        return convoCopy;
-      }
       return convo;
     }
   });

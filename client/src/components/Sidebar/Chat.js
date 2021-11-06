@@ -22,12 +22,11 @@ const useStyles = makeStyles((theme) => ({
 
 const Chat = (props) => {
   const classes = useStyles();
-  const { conversation, activeConversation } = props;
+  const { conversation } = props;
   const { otherUser } = conversation;
 
   const handleClick = async(conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
-    //Calling func to set local unread count = 0
     await props.emptyUnread(conversation.id, conversation.otherUser.id);
   };
 
@@ -39,7 +38,7 @@ const Chat = (props) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} activeConversation={activeConversation} />
+      <ChatContent conversation={conversation} />
     </Box>
   );
 };

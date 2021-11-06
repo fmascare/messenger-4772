@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { User, Conversation, Message, LastChecked } = require("../../db/models");
+const { User, Conversation, Message } = require("../../db/models");
 const { Op } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
 
@@ -60,17 +60,6 @@ router.get("/", async (req, res, next) => {
         delete convoJSON.user2;
       }
 
-      // get lastcheckin info for each convo and user
-      const lastcheckinJSON = await LastChecked.findOne({
-        where: {
-          [Op.and]: {
-            userId: convoJSON.otherUser.id,
-            conversationId: convoJSON.id,
-          },
-        },
-        attributes: ["lastChecked"],
-      });
-
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {
         convoJSON.otherUser.online = true;
@@ -79,11 +68,14 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.otherUser.lastChecked = lastcheckinJSON.lastChecked;
       convoJSON.latestMessageText = convoJSON.messages[0].text;
       convoJSON.otherUser.unreadCount = 0;
+      convoJSON.otherUser.lastRead="";
       convoJSON.messages.forEach(msg => {
-        if(msg.createdAt > convoJSON.otherUser.lastChecked) {
+        if(msg.isRead && convoJSON.otherUser.id !== msg.senderId) {
+          convoJSON.otherUser.lastRead=msg.id;
+        }
+        else if(! msg.isRead && convoJSON.otherUser.id === msg.senderId) {
           convoJSON.otherUser.unreadCount++;
         }
       });

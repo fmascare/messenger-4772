@@ -22,8 +22,6 @@ const useStyles = makeStyles(() => ({
 const Sidebar = (props) => {
   const classes = useStyles();
   const conversations = props.conversations || [];
-  // added to filter unread count for sender
-  const activeConversation = props.activeConversation || [];
   const { handleChange, searchTerm } = props;
 
   return (
@@ -34,7 +32,7 @@ const Sidebar = (props) => {
       {conversations
         .filter((conversation) => conversation.otherUser.username.includes(searchTerm))
         .map((conversation) => {
-          return <Chat conversation={conversation} key={conversation.otherUser.username} activeConversation={activeConversation} />;
+          return <Chat conversation={conversation} key={conversation.otherUser.username} />;
         })}
     </Box>
   );
@@ -42,8 +40,7 @@ const Sidebar = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    conversations: state.conversations,
-    activeConversation: state.activeConversation
+    conversations: state.conversations
   };
 };
 
