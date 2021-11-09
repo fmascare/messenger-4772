@@ -54,6 +54,13 @@ io.on("connection", (socket) => {
       socket.broadcast.emit("remove-offline-user", id);
     }
   });
+
+  socket.on("clear-unread", (data) => {
+    socket.broadcast.emit("clear-unread", {
+      conversationId: data.conversationId,
+      id: data.id,
+    });
+  });
 });
 
 sessionStore

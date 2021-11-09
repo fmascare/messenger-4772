@@ -3,6 +3,9 @@ const { User } = require("./models");
 const Conversation = require("./models/conversation");
 const Message = require("./models/message");
 
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+
 async function seed() {
   await db.sync({ force: true });
   console.log("db synced!");
@@ -32,11 +35,13 @@ async function seed() {
     conversationId: santaigoConvo.id,
     senderId: santiago.id,
     text: "Where are you from?",
+    isRead: true,
   });
   await Message.create({
     conversationId: santaigoConvo.id,
     senderId: thomas.id,
     text: "I'm from New York",
+    isRead: true,
   });
   await Message.create({
     conversationId: santaigoConvo.id,

@@ -43,4 +43,40 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+router.put("/", async (req, res, next) => {
+  try {
+    const { conversationId, senderId } = req.body;
+    if(!conversationId || !senderId) {
+      return res.sendStatus(401);
+    }
+    
+    const resp = await Message.update(
+      { isRead: true },
+      { where : { conversationId: conversationId, senderId: senderId } },
+    );
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+    res.sendStatus(500);
+  }
+});
+
+router.get("/:conversationId", async (req, res, next) => {
+  try {
+    const { conversationId } = req.params;
+
+    const data = await Message.findOne({
+      where : { 
+        conversationId: conversationId,
+      },
+      order: [ ["createdAt", "DESC"] ],
+    });
+
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
