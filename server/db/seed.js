@@ -2,7 +2,9 @@ const db = require("./db");
 const { User } = require("./models");
 const Conversation = require("./models/conversation");
 const Message = require("./models/message");
-const Participant = require("./models/participant");
+
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
 
 async function seed() {
   await db.sync({ force: true });
@@ -24,33 +26,22 @@ async function seed() {
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/775db5e79c5294846949f1f55059b53317f51e30_s3back.png",
   });
 
-  /*const santaigoConvo = await Conversation.create({
+  const santaigoConvo = await Conversation.create({
     user1Id: thomas.id,
     user2Id: santiago.id,
-  });*/
-
-  const santaigoConvo = await Conversation.create({
-    chatName: "Convo 1",
-  });
-
-  await Participant.create({
-    conversationId: santaigoConvo.id,
-    userId: thomas.id,
-  });
-  await Participant.create({
-    conversationId: santaigoConvo.id,
-    userId: santiago.id,
   });
 
   await Message.create({
     conversationId: santaigoConvo.id,
     senderId: santiago.id,
     text: "Where are you from?",
+    isRead: true,
   });
   await Message.create({
     conversationId: santaigoConvo.id,
     senderId: thomas.id,
     text: "I'm from New York",
+    isRead: true,
   });
   await Message.create({
     conversationId: santaigoConvo.id,
@@ -65,24 +56,10 @@ async function seed() {
     photoUrl:
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914468/messenger/8bc2e13b8ab74765fd57f0880f318eed1c3fb001_fownwt.png",
   });
-  /*const chiumboConvo = await Conversation.create({
+  const chiumboConvo = await Conversation.create({
     user1Id: chiumbo.id,
     user2Id: thomas.id,
-  });*/
-
-  const chiumboConvo = await Conversation.create({
-    chatName: "Convo 2",
   });
-
-  await Participant.create({
-    conversationId: chiumboConvo.id,
-    userId: chiumbo.id,
-  });
-  await Participant.create({
-    conversationId: chiumboConvo.id,
-    userId: thomas.id,
-  });
-
   await Message.create({
     conversationId: chiumboConvo.id,
     senderId: chiumbo.id,
@@ -96,22 +73,9 @@ async function seed() {
     photoUrl:
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/6c4faa7d65bc24221c3d369a8889928158daede4_vk5tyg.png",
   });
-  /*const hualingConvo = await Conversation.create({
+  const hualingConvo = await Conversation.create({
     user2Id: hualing.id,
     user1Id: thomas.id,
-  });*/
-
-  const hualingConvo = await Conversation.create({
-    chatName: "Convo 3",
-  });
-
-  await Participant.create({
-    conversationId: hualingConvo.id,
-    userId: hualing.id,
-  });
-  await Participant.create({
-    conversationId: hualingConvo.id,
-    userId: thomas.id,
   });
 
   for (let i = 0; i < 11; i++) {

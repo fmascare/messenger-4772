@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("../db");
 
-const Message = db.define("message", {
+const Post = db.define("post", {
   text: {
     type: Sequelize.STRING,
     allowNull: false,
@@ -17,4 +17,4 @@ const Message = db.define("message", {
   },
 });
 
-module.exports = Message;
+module.exports = Post;
